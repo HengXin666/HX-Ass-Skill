@@ -1,0 +1,25 @@
+;; ========================================
+;; iclip 字体分割 (Seekladoom 教学模板)
+;; ========================================
+;; 适用: 创意/对比/双重性格表现
+;; 特点: 同一个字左半用黑体，右半用宋体
+;; 来源: 简单效果示例+问题教学模板/黑宋clip-左右.ass
+;;
+;; 原理:
+;;   通过 \iclip(反向clip) 将每个字符一分为二
+;;   左半: \iclip($sleft,$top,$scenter,$bottom) + 字体A
+;;   右半: \iclip($scenter,$top,$sright,$bottom) + 字体B
+;;
+;; 变体:
+;;   上下分割: \iclip($sleft,$top,$sright,$smiddle) / \iclip($sleft,$smiddle,$sright,$bottom)
+;;
+;; ========================================
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+
+;; --- 左半: 黑体 ---
+Comment: 0,0:00:00.00,0:00:00.02,Default,,0,0,0,template noblank,{\an5\pos($center,$middle)\iclip($sleft,$top,$scenter,$bottom)\fn思源黑体 Medium}
+
+;; --- 右半: 宋体 ---
+Comment: 1,0:00:00.00,0:00:00.02,Default,,0,0,0,template noblank,{\an5\pos($center,$middle)\iclip($scenter,$top,$sright,$bottom)\fn思源宋体 SemiBold}

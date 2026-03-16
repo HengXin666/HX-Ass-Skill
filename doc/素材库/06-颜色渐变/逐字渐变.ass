@@ -1,0 +1,35 @@
+;; ========================================
+;; 逐字颜色渐变 (Seekladoom 教学模板)
+;; ========================================
+;; 适用: 彩虹效果/渐层色/色彩过渡
+;; 特点: 使用 _G.ass_color 函数根据音节位置插值颜色
+;; 来源: 简单效果示例+问题教学模板/逐字渐变-由橙到红.ass
+;;
+;; _G.ass_color 用法:
+;;   _G.ass_color(R, G, B) → 返回 ASS 颜色字符串 &HBBGGRR&
+;;   注意: ASS 颜色顺序是 BGR 不是 RGB
+;;
+;; ========================================
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+
+;; --- 示例: 从紫色渐变到蓝色 ---
+;; 利用 $si/$syln 计算当前音节在行中的位置比例
+;; 然后线性插值两个端点颜色
+
+;; 紫色 (R=200, G=50, B=255) → 蓝色 (R=50, G=100, B=255)
+;; 在 template 中:
+;; \1c!_G.ass_color(
+;;   math.floor(200 + (50-200) * $si/$syln),  -- R: 200→50
+;;   math.floor(50 + (100-50) * $si/$syln),    -- G: 50→100
+;;   math.floor(255)                            -- B: 255 (不变)
+;; )!
+
+;; --- 完整模板 ---
+Comment: 2,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("syl2end",-$sdur,200)!{\an5\pos($center,$middle)\blur2\1c!_G.ass_color(math.floor(200+(50-200)*$si/$syln), math.floor(50+(100-50)*$si/$syln), 255)!\fad(200,200)}
+
+;; --- 其他常用渐变方向 ---
+;; 橙→红: R=255, G=165→0, B=0
+;; 白→金: R=255, G=255→215, B=255→0
+;; 冰蓝→白: R=173→255, G=216→255, B=230→255

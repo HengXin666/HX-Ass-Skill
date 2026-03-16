@@ -1,0 +1,38 @@
+;; ========================================
+;; 万能量产模板 - 逐字淡入淡出 (Seekladoom)
+;; ========================================
+;; 适用: 任何歌曲的基础效果
+;; 特点: 三段式 (入场→高亮→退场)，逐字30ms延迟产生波浪感
+;; 原理: start2syl(入场色) → syl(换色动画) → syl2end(退场色)
+;; 来源: 歌词特效-量产模板.ass / 简单效果示例
+;;
+;; 用法: 替换 \1c 和 \3c 的颜色值即可适配不同作品
+;; 默认: 1c=蓝色(入场) → 白色(退场), 3c=白色(入场) → 蓝色(退场)
+;;
+;; ========================================
+
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: OPJP,Sarasa Gothic J Semibold,50,&H00FFFFFF,&H00000000,&H00000000,&H00000000,0,0,0,0,100,100,4,0,1,1.5,0,8,0,0,5,1
+Style: OPCN,更纱黑体 SC Semibold,50,&H00FFFFFF,&H00000000,&H00000000,&H00000000,0,0,0,0,100,100,4,0,1,1.5,0,2,0,0,5,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+
+;; --- OPJP 三段式模板 ---
+;; 第1段: 入场 (行首到当前音节, 逐字延迟30ms入场)
+Comment: 2,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("start2syl",($si-1)*30-200,0)!{\an5\pos($center,$middle)\1c&H3767E6&\3c&HFFFFFF&\blur2\fad(200,0)}
+
+;; 第2段: 高亮 (当前音节时长内, 颜色渐变)
+Comment: 2,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("syl",0,0)!{\an5\pos($center,$middle)\blur2\1c&H3767E6&\3c&HFFFFFF&\t(0,$sdur,\1c&HFFFFFF&\3c&H3767E6&)}
+
+;; 第3段: 退场 (当前音节到行尾, 逐字延迟30ms退场)
+Comment: 2,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("syl2end",0,($si-1)*30+200)!{\an5\pos($center,$middle)\1c&HFFFFFF&\3c&H3767E6&\blur2\fad(0,200)}
+
+;; --- OPCN 简单模板 (中文翻译行, 逐字淡入淡出) ---
+Comment: 2,0:00:00.00,0:00:00.00,OPCN,,0,0,0,template char noblank,!retime("line",($si-1)*30-200,($si-1)*30+200)!{\an5\pos($center,$middle)\1c&HFFFFFF&\3c&H3767E6&\blur2\fad(200,200)}

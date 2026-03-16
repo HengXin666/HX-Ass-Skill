@@ -1,0 +1,30 @@
+# Python 虚拟环境
+.venv/
+
+# py
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# uv 锁文件 (可选择是否提交)
+# uv.lock
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 本地测试
+test/node_modules/
+test/dist/
+
+# ai
+.codebuddy/
+.workbuddy/
+.claude/

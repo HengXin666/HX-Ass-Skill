@@ -1,0 +1,18 @@
+;; ========================================
+;; 简单淡入淡出 (Little Busters! 风格)
+;; ========================================
+;; 适用: 日常/庄严/需要文字稳定显示的场景
+;; 特点: 不做卡拉OK换色，只做逐字出现然后保持到行尾
+;; 入场: 音节开始时淡入 → 保持到行尾淡出
+;; 来源: Little Busters! OP 全歌词（已打K+模板行+自动化-逐字卡拉OK）.ass
+;;
+;; ========================================
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+
+;; OPJP: 音节出现后保持到行尾
+Comment: 2,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("syl2end",-$sdur,($si-1)*30+200)!{\an5\pos($center,$middle)\blur2\fad(200,200)}
+
+;; OPCN: 逐字淡入淡出（行级时间轴）
+Comment: 2,0:00:00.00,0:00:00.00,OPCN,,0,0,0,template char noblank,!retime("line",($si-1)*30-200,($si-1)*30+200)!{\an5\pos($center,$middle)\blur2\fad(200,200)}

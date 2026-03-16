@@ -1,0 +1,49 @@
+;; ========================================
+;; 雪花数字粒子 (命运石之门 0 OP - OP JP 4/5)
+;; ========================================
+;; 适用: 冬季/空灵/科技感场景
+;; 特点: 使用 Faux Snow BRK 字体的数字 0-9 作为飘浮粒子
+;; 来源: 命运石之门 0 OP1.ass - OP JP 4 + OP JP 5 (Seekladoom)
+;;
+;; 注意: 需要安装 "Faux Snow BRK" 字体
+;;       该字体中 0-9 是不同形状的雪花图案
+;;
+;; ========================================
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+
+;; --- 方式A: 雪花+三角碎片 (OP JP 4 风格, 燃/科幻) ---
+;; 三角形状定义
+Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,Code once,triangle = { "m 0 0 l -10 15 l 10 15 "}
+
+;; 文字入场: 从上/下交替飞入
+Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("start2syl",-200,0)!{\an5\move($center,!$middle+50*(-1)^($si+1)!,$center,$middle,0,200)\blur1}
+
+;; 雪花数字: 旋转飘浮
+Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char syl noblank notext,!retime("syl",0,500)!{\an5\pos($center,!$middle+5!)\1cFFFFFF\bord0\frz360\t(0,2000,\frz0)\fad(500,500)\fnFaux Snow BRK}!math.random(0,9)!
+
+;; 三角碎片: 20个小三角围绕字符飞散
+Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char syl loop 20 noblank notext,!retime("syl",j*50,500)!{\an5\1cFFFFFF\bord0\blur2\t(0,2000,\frx!math.random(-360,360)!\fry!math.random(-360,360)!\frz!math.random(-360,360)!)\move(!$center-math.random(0,60)!,!$middle-math.random(0,60)!,!$center+math.random(0,30)!,!$middle+math.random(0,30)!,0,!$dur*0.5!)\fad(500,500)\p2}!triangle[1]!
+
+;; 文字颤动: 音节时长内微颤 (模拟像素抖动)
+Comment: 1,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank loop 20,!retime("syl",math.floor((j-1)*(0.05*$sdur)),-math.floor((maxj-j)*(0.05*$sdur)))!{\an5\pos(!$scenter+math.random(-5,5)!,!$smiddle+math.random(-5,5)!)\blur1\fscx130\fscy130}
+
+;; 文字保持
+Comment: 1,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("syl2end",0,0)!{\an5\pos($center,$middle)\blur1}
+
+;; 文字退场: 向上/下飞出
+Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("postline",0,200)!{\an5\move($center,$middle,$center,!$middle+50*(-1)^($si+1)!,0,200)\blur1}
+
+;; --- 方式B: 纯雪花+棍棒 (OP JP 5 风格, 简约/空灵) ---
+;; 棍棒形状定义
+;; Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,code once,stick = { "m 0 0 l 3 -36 l 6 0 l 3 12 "}
+;;
+;; 文字: 简单淡入淡出
+;; Comment: 1,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("line",0,0)!{\an5\pos($center,$middle)\fad(100,100)\blur1}
+;;
+;; 雪花: 逐字延迟出现
+;; Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char syl noblank notext,!retime("line",$si*100,0)!{\an5\pos(!$center+math.random(-20,20)!,!$middle+math.random(-20,20)!)\1cFFFFFF\bord0\fs40\fad(0,100)\fnFaux Snow BRK}!math.random(0,9)!
+;;
+;; 棍棒旋转: 从1800度旋到180度
+;; Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template noblank notext,!retime("syl2end",-500,0)!{\an5\pos($scenter,$smiddle)\frz1800\t(0,$ldur,\frz180)\bord0\fad(100,100)\p1}!stick[1]!

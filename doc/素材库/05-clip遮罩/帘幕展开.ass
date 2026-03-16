@@ -1,0 +1,30 @@
+;; ========================================
+;; Clip 帘幕展开 (Made in Abyss / 大切がきこえる)
+;; ========================================
+;; 适用: 优雅/庄严/安静的开场/收束段落
+;; 特点: 文字从中心向两侧展开，像拉开帘幕
+;; 来源: Made In Abyss OP by Seekladoom.ass + 大切がきこえる KFX
+;;
+;; 原理:
+;;   1. 初始 \clip 为字符中心的零宽矩形
+;;   2. \t 动画将 clip 向左右扩展到字符全宽
+;;   3. 视觉效果: 文字从中心"生长"出来
+;;
+;; 参数:
+;;   展开时间: 600ms (正常) / 800ms (慢速outro)
+;;   \blur: 2 (柔和边缘)
+;;
+;; ========================================
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+
+;; --- 方式A: 逐音节帘幕展开 (推荐) ---
+;; 音节开始时从中心展开，到行尾淡出
+Comment: 1,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template syl noblank,!retime("syl2end",-$sdur,300)!{\an5\pos($center,$middle)\blur2\clip(!$scenter!,!$top-5!,!$scenter!,!$bottom+5!)\t(0,600,\clip(!$sleft-5!,!$top-5!,!$sright+5!,!$bottom+5!))\fad(0,300)}
+
+;; --- 方式B: 慢速帘幕 (用于outro, 800ms展开) ---
+;; Comment: 1,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template syl noblank,!retime("syl2end",-$sdur,500)!{\an5\pos($center,$middle)\blur2\clip(!$scenter!,!$top-5!,!$scenter!,!$bottom+5!)\t(0,800,\clip(!$sleft-5!,!$top-5!,!$sright+5!,!$bottom+5!))\fad(0,500)}
+
+;; --- 方式C: OPCN翻译行帘幕 (基于行级时间) ---
+;; Comment: 1,0:00:00.00,0:00:00.00,OPCN,,0,0,0,template syl noblank,!retime("line",$si*30,300+$si*30)!{\an5\pos($center,$middle)\blur2\clip(!$scenter!,!$top-5!,!$scenter!,!$bottom+5!)\t(0,600,\clip(!$sleft-5!,!$top-5!,!$sright+5!,!$bottom+5!))\fad(0,300)}

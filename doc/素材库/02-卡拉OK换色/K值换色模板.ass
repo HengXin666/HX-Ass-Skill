@@ -1,0 +1,35 @@
+;; ========================================
+;; K值换色 + 主边换色 模板 (Seekladoom)
+;; ========================================
+;; 适用: 需要明显卡拉OK高亮效果的歌曲
+;; 来源: Little Busters! OP 全歌词 - K值换色 / 主边换色
+;;
+;; 原理:
+;;   K值换色: SecondaryColour 自动沿 \kf 标记推进
+;;   主边换色: 1c(主色)和3c(边色)在 \t 中交换
+;;
+;; ========================================
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+
+;; --- 方式A: 使用 SecondaryColour 的自动K值换色 ---
+;; 需要Style的SecondaryColour设为高亮色
+;; 然后使用 {\kf} 而非 {\K} 来自动产生扫描效果
+;; (无需template行，Aegisub原生卡拉OK渲染器即可)
+
+;; --- 方式B: 三段式主边换色 (最推荐) ---
+;; 入场: 主色=高亮色, 边色=白色
+Comment: 2,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("start2syl",($si-1)*30-200,0)!{\an5\pos($center,$middle)\1c&H7910CC&\3c&HFFFFFF&\blur2\fad(200,0)}
+
+;; 高亮: 颜色交换动画 (高亮色→白色 / 白色→高亮色)
+Comment: 2,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("syl",0,0)!{\an5\pos($center,$middle)\blur2\1c&H7910CC&\3c&HFFFFFF&\t(0,$sdur,\1c&HFFFFFF&\3c&H7910CC&)}
+
+;; 退场: 主色=白色, 边色=高亮色 (换色后的状态)
+Comment: 2,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("syl2end",0,($si-1)*30+200)!{\an5\pos($center,$middle)\1c&HFFFFFF&\3c&H7910CC&\blur2\fad(0,200)}
+
+;; --- 颜色参考 ---
+;; 假面骑士 EX-AID:  1c=&H7910CC& (品红/紫)
+;; 吹响吧上低音号:   1c=&H3767E6& (橙/蓝)
+;; 命运石之门:       1c=&H030303& (近黑) 3c=&HB7B7B8& (灰)
+;; 天使の3P:         1c=&HAF4BF0& (粉紫)

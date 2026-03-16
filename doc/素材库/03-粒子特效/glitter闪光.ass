@@ -1,0 +1,47 @@
+;; ========================================
+;; Glitter 闪光粒子系统 (假面骑士 EX-AID)
+;; ========================================
+;; 适用: 华丽/热血/游戏感场景
+;; 特点: 矩形小方块沿文字轨迹闪烁移动，配合正弦波路径
+;; 来源: 假面骑士 EX-AID NCOP.ass (Seekladoom)
+;;
+;; 核心技术: 自定义 glitter() 函数
+;;   通过多段 \t 实现间歇性闪烁效果
+;;   方块大小在 sizex~2.5*sizex 之间随机变化
+;;   位置沿正弦波曲线移动
+;;
+;; ========================================
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+
+;; --- 初始化 ---
+;; 获取视频分辨率用于缩放
+Comment: 0,0:00:00.00,0:00:05.00,OPJP,,0,0,0,code once,xres, yres = _G.aegisub.video_size() if yres == nil then ratio = 1 else ratio = yres/720 y_rat = ratio end
+
+;; 矩形shape + 帧时长
+Comment: 0,0:00:00.00,0:00:05.00,OPJP,,0,0,0,code once,rectangle = {"m 0 0 l 0 100 l 100 100 l 100 0 l 0 0"}     frame_dur = 40
+
+;; 每音节随机生成方块大小
+Comment: 0,0:00:00.00,0:00:05.00,OPJP,,0,0,0,code syl,sizex = math.random(10,20) * y_rat         size2 = math.random(0.5*sizex,1.5*sizex)
+
+;; --- glitter 核心函数 ---
+;; 生成多段 \t 标签，使方块间歇性闪烁
+;; 参数: DurTotal=总时长, ExtraTags_i=闪入标签, ExtraTags_f=闪出标签
+Comment: 0,0:00:00.00,0:00:05.00,OPJP,,0,0,0,code syl,function glitter(DurTotal,ExtraTags_i,ExtraTags_f)            local time_ini, t, t1, t2, t3, t4, Tag_fx = 0, 0, 0, 0, 0, 0, ""            local time_fin = DurTotal			local time_tot = time_fin - time_ini			local GT_i, GT_f = ExtraTags_i, ExtraTags_f			i = 0		    while time_tot > t do			t1 = t + math.random(1,time_tot/2)*y_rat/10			t2 = t1 + 1			t3 = t2 + frame_dur			t4 = t3 + 2.5 * frame_dur			size1 = math.random(1.5*sizex,2.5*sizex)			size2 = math.random(0.5*sizex,1.5*sizex)			if t4 > time_tot then			t4 = time_tot			end			Tag_fx = Tag_fx .. string.format( "\\t(%d,%d,\\%s\\fscx%d\\fscy%d)\\t(%d,%d,\\%s\\fscx%d\\fscy%d)",			time_ini + t1, time_ini + t2, GT_i, size1, size1,			time_ini + t3, time_ini + t4, GT_f, size2, size2			)			t = t4			i = i + 1			end			return Tag_fx			end
+
+;; --- 三段式文字 + glitter粒子 ---
+;; 入场 (高亮色入)
+Comment: 2,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("start2syl",($si-1)*30-200,0)!{\an5\pos($center,$middle)\1c&H7910CC&\3c&HFFFFFF&\blur2\fad(200,0)}
+
+;; 高亮 (换色动画)
+Comment: 2,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("syl",0,0)!{\an5\pos($center,$middle)\blur2\1c&H7910CC&\3c&HFFFFFF&\t(0,$sdur,\1c&HFFFFFF&\3c&H7910CC&)}
+
+;; 退场 (换色后保持)
+Comment: 2,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank,!retime("syl2end",0,($si-1)*30+200)!{\an5\pos($center,$middle)\1c&HFFFFFF&\3c&H7910CC&\blur2\fad(0,200)}
+
+;; Glitter粒子: 方块沿正弦曲线闪烁移动
+;; maxloop = 0.035*$sdur (自动根据音节时长计算粒子数)
+;; 路径: 沿音节宽度水平移动，垂直方向正弦波
+;; remember/recall: 记忆y坐标用于起止点一致
+Comment: 0,0:00:00.00,0:00:05.00,OPJP,,0,0,0,template noblank notext,!maxloop(0.035*$sdur)!!relayer(math.random(1,2))!!retime("syl",$sdur*j/maxj,-$sdur+$sdur*j/maxj+math.random(18,36)*10)!{\an5\move(!string.format("%.1f",$sleft+$swidth*j/maxj+math.random(1,10))!,!string.format("%.1f",$smiddle+remember("y_pos",0.2*$lheight*(2*math.sin(math.pi*j/maxj)-1)+math.random(1,5*y_rat)*(-1)*math.random(0,1)))!,!string.format("%.1f",$sleft+$swidth*j/maxj-y_rat*math.random(10,30))!,!string.format("%.1f",$smiddle+recall.y_pos)!)\1c&H7910CC&\bord0\fscx!size2!\fscy!size2!!glitter(math.random(18,36)*10,"1a&HFF&","1a&H00&")!\fad(0,100)\p1}!rectangle[1]!

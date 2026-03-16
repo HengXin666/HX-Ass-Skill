@@ -1,0 +1,26 @@
+;; ========================================
+;; 羽毛飘散粒子 (命运石之门 0 OP)
+;; ========================================
+;; 适用: 温柔/梦幻/抒情氛围
+;; 特点: 每个音节生成5个羽毛，随机3D旋转从上往下飘
+;; 来源: 命运石之门 0 OP1.ass - OP JP 模板 (Seekladoom)
+;;
+;; shape: 两种羽毛 - 大羽毛(feather[1]) + 小羽毛(feather[2])
+;;
+;; ========================================
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+
+;; --- 初始化: 羽毛 shape 定义 ---
+Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,Code once,feather = { "m 26 37 l 38 27 l 45 19 l 52 11 l 57 7 b 66 0 72 9 64 29 l 59 26 l 62 31 b 58 36 52 43 46 47 l 41 44 l 44 48 b 41 52 37 56 33 58 l 28 52 l 30 58 l 27 61 l 24 58 l 24 61 l 21 58 l 17 61 l 17 59 b 11 62 6 64 0 64 l 0 60 b 5 60 12 57 16 54 l 14 51 l 18 51 l 17 47 l 20 50 l 20 42 l 24 38 l 25 45 ","m 0 9 l -2 9 l -2 1 l -5 -2 l -8 -7 l -8 -12 l -7 -17 l -5 -20 l -1 -24 l 2 -21 l 4 -18 l 5 -13 l 5 -8 l 4 -4 l 3 -1 l 0 1 l 0 4 l 0 7 "}
+
+;; --- 羽毛粒子: 每音节5个，随机3D旋转飘落 ---
+;; \3c=D2D2D2(浅灰), \blur3, 缩放30%
+;; 从上方(-60~-80)飘到下方(+60~+80)
+;; 随机3D旋转 frx/fry/frz ∈ [-360, 360]
+Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template syl loop 5 noblank notext,!retime("syl",-300+j*100,1000)!{\an5\3cD2D2D2\blur3\fscx30\fscy30\t(0,2000,\frx!math.random(-360,360)!\fry!math.random(-360,360)!\frz!math.random(-360,360)!)\move(!$center+math.random(-40,40)!,!$middle-math.random(60,80)!,!$center+math.random(-100,100)!,!$middle+math.random(60,80)!)\fad(300,300)\p1}!feather[1]!
+
+;; --- 文字本体: 从上方落入 + 保持到行尾 ---
+Comment: 1,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template noblank multi,!retime("syl",0,0)!{\an5\blur1\move($center,!$middle-80!,$center,$middle,0,100)}
+Comment: 1,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template noblank,!retime("syl2end",0,300)!{\an5\pos($center,$middle)\blur1\fad(0,300)}

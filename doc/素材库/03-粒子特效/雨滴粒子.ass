@@ -1,0 +1,36 @@
+;; ========================================
+;; 雨滴粒子系统 (天气之子 GRAND ESCAPE)
+;; ========================================
+;; 适用: 感伤/抒情/雨天氛围
+;; 特点: 竖线条从上方随机落下，配合光晕圆点扩散
+;; 来源: GRAND ESCAPE MV KFX EMOTION.ass (Seekladoom)
+;;
+;; 参数:
+;;   雨水下落时间 = 500ms (可调)
+;;   maxloop = $ldur/下落时间 (自动计算雨滴数量)
+;;
+;; ========================================
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+
+;; --- 初始化 ---
+Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,code once,shape = {"m 0 0 l 2 0 l 2 50 l 0 50 l 0 0","m 100 0 b 100 -55 55 -100 0 -100 b -55 -100 -100 -55 -100 0 b -100 55 -55 100 0 100 b 55 100 100 55 100 0","m -5 0 l -5 0 l 5 0 l 5 22 l -5 22"}
+Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,code once,temp = {}
+Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,code once,function set_temp(ref,val) temp[ref] = val; return val; end
+Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,code once,雨水下落时间 = 500
+
+;; --- 雨滴: 竖线条从上往下移动 ---
+;; shape[1] = 竖线条雨滴
+;; relayer 随机0-4层，maxloop根据行时长自动计算雨滴数量
+Comment: 0,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template syl noblank notext,!relayer(math.random(0,4))!!maxloop($ldur/雨水下落时间)!!retime("line",set_temp("雨水生成时间",$ldur/$syln*math.random(0,$syln)/10+j*雨水下落时间),temp.雨水生成时间+雨水下落时间-$ldur)!{\an5\move(!$center+set_temp("随机x",math.random(-$width/2,$width/2))!,!$middle-80!,!$center+temp.随机x!,!$middle+50!)\blur1\bord0\shad0\fad(200,200)\fscx40\fscy!math.random(30,60)!\p1}!shape[1]!
+
+;; --- 光晕: 圆形光点在字符周围扩散 ---
+;; shape[2] = 圆形
+;; 两组: 一组向右上扩散，一组向左下扩散
+Comment: 3,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank notext loop 3,!retime("syl",(-j-1)*100,1000)!{\an5\move(!$center-math.random(0,50)!,!$middle-math.random(0,50)!,!$center+math.random(0,50)!,!$middle+math.random(0,50)!)\1a!_G.ass_alpha(math.random(50,150))!\blur!math.random(1,2)!\bord0\shad0\fad(200,500)\p!math.random(4,6)!}!shape[2]!
+
+Comment: 3,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template char noblank notext loop 3,!retime("syl",(-j-1)*100,1000)!{\an5\move(!$center-math.random(0,50)!,!$middle+math.random(0,50)!,!$center+math.random(0,50)!,!$middle-math.random(0,50)!)\1a!_G.ass_alpha(math.random(50,150))!\blur!math.random(3,4)!\bord0\shad0\fad(200,500)\p!math.random(4,6)!}!shape[2]!
+
+;; --- 文字本体: 逐字保持到行尾 ---
+Comment: 1,0:00:00.00,0:00:00.00,OPJP,,0,0,0,template noblank,!retime("syl2end",-$sdur,200+$si*30)!{\an5\pos($center,$middle)\blur2\shad0\fad(200,200)}
