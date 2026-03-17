@@ -1,108 +1,109 @@
 ---
 name: hx-ass-skill
-description: This skill should be used when the user wants to create anime-themed ASS karaoke effects (KFX) from K-timed lyrics. It covers the full workflow from analyzing K-framed ASS files (Japanese + Chinese + optional romaji) to producing high-quality, themed ASS lyric files with furigana annotations and visual effects matching the anime's OP/ED style. The output is in pre-template state (before Aegisub's "Apply Karaoke Template"). This skill should also be used when recording case study experience after a successful KFX production.
+description: >
+    当用户想要从K轴歌词创建番剧主题ASS卡拉OK特效时使用此技能。
+    涵盖从分析K轴ASS文件(日文+中文+可选罗马音)到制作高质量主题ASS歌词文件的完整工作流程, 
+    包含振假名注音和匹配番剧OP/ED风格的视觉效果。
+    输出为模板前状态(在Aegisub执行"应用卡拉OK模板"之前)。
+    此技能也用于在成功制作KFX后记录案例经验。
 ---
 
-# HX ASS Skill — 番剧主题 ASS 卡拉OK特效制作
+# HX-ASS-Skill — 番剧主题 ASS 卡拉OK特效制作
 
-## Overview
+## 概述
 
-Transform K-framed ASS lyrics (Japanese + Chinese translation + optional romaji) into high-quality, anime-themed ASS karaoke effect files with furigana annotations. Output is in pre-template state — ready for Aegisub's "Apply Karaoke Template" execution. The production process may require web searches for anime information.
+将 K 轴 ASS 歌词文件(日文 + 中文翻译 + 可选罗马音)转换为高质量的番剧主题 ASS 卡拉OK特效文件, 包含振假名注音。输出为模板前状态, 可直接在 Aegisub 中执行"应用卡拉OK模板"。制作过程中可能需要搜索番剧信息。
 
-## Workflow
+## 工作流程
 
-### Step 1: Analyze Input
+### 步骤 1: 分析输入
 
-Parse the K-framed ASS file: identify tracks (orig/ts/roma), count lines and duration, extract timestamps, convert `\kf` → `\k` tags.
+解析 K 轴 ASS 文件: 识别轨道(orig/ts/roma), 统计行数和时长, 提取时间戳, 将 `\kf` → `\k` 标签转换。
 
-Search anime info on [萌娘百科](https://zh.moegirl.org.cn/) and [bgm.tv](https://bgm.tv/) — gather genre, visual style, character colors, confirm OP/ED/Insert position.
+在 [萌娘百科](https://zh.moegirl.org.cn/) 和 [bgm.tv](https://bgm.tv/) 搜索番剧信息 — 收集类型、视觉风格、角色配色, 确认 OP/ED/插入曲位置。
 
-Read through lyrics (Japanese + Chinese) to determine emotional tone per section.
+通读歌词(日文 + 中文)确定各段落的情感基调。
 
-→ Design methodology: `references/设计思想/OPED歌词特效设计思路.md`
+→ 设计方法论: `references/设计思想/OPED歌词特效设计思路.md`
 
-### Step 2: Design & Plan
+### 步骤 2: 设计与规划
 
-Select design school(s) and effect combinations based on anime theme and song emotion. Divide the song into segments (Intro/Verse/Chorus/Bridge/Coda), assign a Style to each line, build a time-threshold table.
+根据番剧主题和歌曲情感选择设计流派和特效组合。将歌曲分段(前奏/主歌/副歌/桥段/尾声), 为每行分配 Style, 构建时间阈值表。
 
-Choose reference templates from the asset library. Determine color scheme in `&HBBGGRR&` (BGR) format.
+从素材库选择参考模板。确定配色方案, 使用 `&HBBGGRR&`(BGR)格式。
 
-→ **Past case studies (most important)**: `assets/案例/` — 4 complete productions with build scripts, 制作记录, and output files. Always review relevant cases first.
-→ KFX reference works: `assets/music-ass/`
-→ Seekladoom collection: `assets/Seekladoom-ASS-Effect-master/`
-→ Material templates: `assets/素材库/` (8 categories, see `references/素材库索引.md`)
+→ **过往案例(最重要)**: `assets/案例/` — 4个完整制作案例, 包含构建脚本、制作记录和输出文件。开始前务必先查阅相关案例。
+→ KFX参考作品: `assets/music-ass/`
+→ 素材模板: `assets/素材库/`(8个分类, 见 `references/素材库索引.md`)
 
-### Step 3: Build Furigana
+### 步骤 3: 构建振假名
 
-Load `furigana_map.txt` (project root, shared across songs, 218+ entries). Scan Japanese lines for CJK kanji, apply context-dependent overrides (e.g. 一人→ひと, 笑顔→えがお), embed using `|<` syntax.
+扫描日文行中的CJK汉字, 根据上下文应用读音覆盖(如 一人→ひとり, 笑顔→えがお, 中→なか), **如果有 roma 轨道, 可优先参考其作为读音**, 使用 `|<` 语法嵌入。
 
-For new kanji not in the map, look up the correct reading and append to `furigana_map.txt`.
+→ 完整振假名指南: `references/知识库/日语注音(Furigana)编写与特效同步教程.md`
 
-→ Full furigana guide: `references/知识库/日语注音(Furigana)编写与特效同步教程.md`
+### 步骤 4: 组装模板
 
-### Step 4: Assemble Template
+存在两种流水线 — 除非参考文件为纯手工制作, 否则优先使用 Aegisub 模板流水线:
 
-Two pipelines exist — prefer Aegisub Template pipeline unless the reference is purely hand-crafted:
+**Aegisub 模板流水线**: 创建 `build_aegisub_kfx_{歌曲名}.py`。将 Script Info + Styles + code/template Comment 行 + 卡拉OK源行 + 中文翻译行合并为一个 ASS 文件。 (注意`注音`)
 
-**Aegisub Template pipeline**: Create `build_kfx_{song}.ps1`. Merge Script Info + Styles + code/template Comment lines + karaoke source lines + Chinese translation lines into one ASS file.
+**Python 预渲染流水线**: 创建 `build_prerender_kfx_{歌曲名}.py`。直接生成所有特效 Dialogue 行。使用 `python -X utf8` 运行。
 
-**Python pre-render pipeline**: Create `build_kfx_{song}.py`. Generate all fx Dialogue lines directly. Run with `python -X utf8`.
+关键规则:
+- 振假名同步使用 `syl furi` 组合修饰符(绝不单独使用 `template furi`)
+- 转换 `\kf` → `\k`(Aegisub Templater 仅识别 `\k`)
+- 中文行: 标准使用 `\fad(300,300)`, 副歌段落使用 `\pos(x,600)`
 
-Critical rules:
-- Use `syl furi` combined modifier for furigana sync (never standalone `template furi`)
-- Convert `\kf` → `\k` (Aegisub Templater only recognizes `\k`)
-- Chinese lines: `\fad(300,300)` for standard, `\pos(x,600)` for chorus sections
+→ ASS标签参考: `references/技术手册/ASS特效标签速查.md`
+→ 完整ASS知识库: `references/知识库/ASS-Effect-Knowledge-Base.md`
 
-→ ASS tag reference: `references/技术手册/ASS特效标签速查.md`
-→ Full ASS knowledge base: `references/知识库/ASS-Effect-Knowledge-Base.md`
+### 步骤 5: 验证与调试
 
-### Step 5: Validate & Debug
+检查输出行数(模板: 150~300行, Python: 3000~10000+行)。在输出特效行中搜索特定汉字并与参考文件对比。
 
-Check output line count (Template: 150~300, Python: 3000~10000+). Search specific kanji in output fx lines and compare with reference files.
+常见问题: `unicode.len` 需要括号包裹、缺少 Default 样式、振假名不同步、相邻行动画重叠。
 
-Common issues: `unicode.len` needs wrapping parentheses, missing Default style, furigana not syncing, animation overlap between adjacent lines.
+→ 自动验证器: `scripts/validate_kfx.py`
 
-→ Automated validator: `scripts/validate_kfx.py`
+### 步骤 6: 微调
 
-### Step 6: Fine-tune
+在实际视频预览中调整颜色、时间、位置、粒子参数。确保段落间过渡流畅。
 
-Adjust colors, timing, positions, particle parameters on actual video preview. Ensure smooth transitions between sections.
+### 步骤 7: 记录案例经验(ref)
 
-### Step 7: Record Case Experience (ref)
+**每次满意制作后执行。** 创建目录 `assets/案例/{歌曲名}/`, 包含: 制作记录.md + 构建脚本 + k帧.ass + 成品_KFX.ass。
 
-**Execute after every satisfactory production.** Create directory `assets/案例/{song_name}/` containing: 制作记录.md + build script + k帧.ass + 成品_KFX.ass.
+→ 自动案例记录器: `scripts/record_case.py`
+→ 现有案例参考: `assets/案例/`
 
-→ Automated case recorder: `scripts/record_case.py`
-→ Existing cases for reference: `assets/案例/`
-
-## Resources
+## 资源
 
 ### scripts/
 
-| Script | Purpose |
-|--------|---------|
-| `validate_kfx.py` | Validate KFX output: line count, styles, furigana presence, timing |
-| `record_case.py` | Create case study directory structure and template for Step 7 |
+| 脚本 | 用途 |
+|------|------|
+| `validate_kfx.py` | 验证KFX输出: 行数、样式、振假名存在、时间 |
+| `record_case.py` | 创建案例目录结构和模板(步骤7) |
 
 ### references/
 
-Reference documentation loaded into context as needed:
+按需加载到上下文的参考文档:
 
-| File | Content |
-|------|---------|
-| `设计思想/OPED歌词特效设计思路.md` | 5 design schools + emotion-effect mapping table |
-| `技术手册/ASS特效标签速查.md` | ASS override tags: color, position, animation, clip, drawing |
-| `知识库/ASS-Effect-Knowledge-Base.md` | Complete ASS effect knowledge base (Seekladoom) |
-| `知识库/日语注音(Furigana)编写与特效同步教程.md` | Furigana writing + `syl furi` sync tutorial |
-| `素材库索引.md` | Index of material library categories |
+| 文件 | 内容 |
+|------|------|
+| `设计思想/OPED歌词特效设计思路.md` | 5种设计流派 + 情感-特效映射表 |
+| `技术手册/ASS特效标签速查.md` | ASS覆盖标签: 颜色、位置、动画、遮罩、绘图 |
+| `知识库/ASS-Effect-Knowledge-Base.md` | 完整ASS特效知识库(Seekladoom) |
+| `知识库/日语注音(Furigana)编写与特效同步教程.md` | 振假名编写 + `syl furi` 同步教程 |
+| `素材库索引.md` | 素材库分类索引 |
 
 ### assets/
 
-Files used in output — template .ass files, reference works, and case archives:
+输出使用的文件 — 模板 .ass 文件、参考作品和案例存档:
 
-| Directory | Content |
-|-----------|---------|
-| `案例/` | **4 complete production case studies** — each contains 制作记录.md (design decisions, problems solved, lessons learned), build script, K-framed input, and output KFX. **Always consult before starting a new production.** |
-| `music-ass/` | Complete KFX reference works (天使の3P, Charlotte, 点兔, MIA, 命运石之门, ヨスガノソラ) |
-| `Seekladoom-ASS-Effect-master/` | 86 K-timed subtitle files + effect templates + drawing code |
-| `素材库/` | 8 categories of reusable .ass templates (01-基础模板 through 08-绘图代码) |
+| 目录 | 内容 |
+|------|------|
+| `案例/` | **4个完整制作案例** — 每个包含制作记录.md(设计决策、解决的问题、经验教训)、构建脚本、K轴输入和输出KFX。**开始新制作前务必查阅。** |
+| `music-ass/` | 完整KFX参考作品(天使の3P、Charlotte、点兔、命运石之门、ヨスガノソラ) |
+| `素材库/` | 8类可复用 .ass 模板(01-基础模板 至 08-绘图代码) |
