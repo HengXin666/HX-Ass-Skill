@@ -28,3 +28,6 @@ test/dist/
 .codebuddy/
 .workbuddy/
 .claude/
+
+# 工作区
+workspace/
